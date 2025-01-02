@@ -1,0 +1,27 @@
+import boto3
+import json
+
+def lambda_handler(event, context):
+    sns_client = boto3.client('sns')
+    
+    # SNSトピックARN
+    sns_topic_arn = "arn:aws:sns:ap-northeast-1:762233727903:object-create"
+    
+    # S3イベントから情報を取得
+    bucket_name = event['Records'][0]['s3']['bucket']['name']
+    object_key = event['Records'][0]['s3']['object']['key']
+    
+    # メッセージを作成
+    message = f"New file uploaded to S3 bucket '{bucket_name}': {object_key}"
+    
+    # SNS通知を送信
+    sns_client.publish(
+        TopicArn=sns_topic_arn,
+        Message=message,
+        Subject="S3 Upload Notification"
+    )
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Notification sent successfully!')
+    }
